@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2048 Game</title>
+  </head>
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      box-sizing: border-box;
+    }
+    body {
+      height: 100vh;
+      width: 100vw;
+      background-color: rgb(59, 57, 57);
+      display: grid;
+      align-items: center;
+      justify-content: center;
+    }
+    .Grid_Box {
+      display: grid;
+      height: 100%;
+      width: 100%;
+      row-gap: 1rem;
+      column-gap: 1rem;
+      padding: 10px;
+      grid-template-rows: repeat(4, 100px);
+      grid-template-columns: repeat(4, 100px);
+    }
+    .box1 {
+      background-color: rgb(78, 78, 219);
+      border: 2px solid black;
+      border-radius: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      font-size: 40px;
+      font-weight: 700;
+    }
+    .box1:hover {
+      background-color: #b76d49;
+    }
+    .box2 {
+      background-color: rgb(78, 78, 219);
+      border: 2px solid rgb(0, 0, 0);
+      height: 100px; width: 100px;
+      border-radius: 20px;
+      position: relative;
+      left: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      cursor: grab;
+      font-weight: 700;
+
+    }
+    .box2:hover {
+      background-color: #b77549;
+    }
+    .GameOverDiv{
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:rgb(37, 35, 35) ;
+    } 
+    .p{
+      font-size: 40px;
+      font-weight: 900;
+      color: rgb(242, 208, 208);
+      position: absolute;
+      top:40%;
+      left: 40%;
+    }
+    .restartButton{
+      position: absolute;
+      top:50% ;
+      left: 45%;
+      width: 120px;
+      height: 40px;
+      font-size: 20px;
+      text-align: center;
+      background-color: #df7111;
+      border-radius:6px;
+    }
+    .helpDiv{
+      position:relative;
+      top: -100px;
+      width:160px ;
+      background-color: rgb(78, 78, 219);
+      border: 2px solid rgb(0, 0, 0);
+      height: 100px;
+      border-radius: 20px;
+      font-weight: 700;
+      font-size: 30px;
+      display: flex;justify-content: center; align-items: center;
+    }
+    .scorediv
+      {
+        height: 100px; width: 300px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        position: absolute;
+        top: 50px;
+        left: 115px;
+        background-color: #d4670f;
+        border: 5px solid rgb(97, 87, 63);
+        border-radius: 23px;
+        font-size: 30px;
+        font-weight: bolder;
+      }
+  </style>
+  <body>
+    <div class="Grid_Box">
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+      <div class="box1"></div>
+    </div>
+    
+    <div class="box2" draggable="true"></div>
+
+     </body>
+  <script>
+   const arr_Grid = Array.from(document.querySelectorAll(".box1"));
+   let help = 0;
+   let count = 0;
+   let newscore = 0;
+   let do_double_counter = 0;
+   const scoreDiv = document.createElement('div');
+   scoreDiv.classList.add('scorediv');
+    scoreDiv.innerText = `TOTAL SCORE - ${newscore}`;
+    document.body.appendChild(scoreDiv);
+   
+   const helpDiv = document.createElement('div');
+   helpDiv.classList.add('helpDiv');
+   helpDiv.textContent = `Option ${help}`
+   helpDiv.addEventListener("click", () => {
+      if (help > 0) {
+        uthanewalabox.innerText = "";
+        uthanewalabox.innerText = gain_num();
+        help--;
+        helpDiv.innerText = `Option ${help}`;
+      }
+    });
+   document.body.appendChild(helpDiv);
+   
+   
+    
+    function gain_num() {
+      const num_pattern = [2,4,8,16,32,64,128,256,512,1024,2,2,2,2,2,2,2,2,2,2,
+    2,2,2,2,2,2,2,
+    4,4,4,4,4,4,4,4,4,4,
+    4,4,4,4,4,128,
+    4,4,4,4,4,1024,4,4,4,4,4,
+    8,8,8,8,8,8,8,8,8,8,
+    8,8,8,8,8,8,8,8,8,8,
+    16,16,16,16,16,32,32,32,64,64,];
+      const index1 = Math.floor(Math.random() *num_pattern.length);
+      return num_pattern[index1];
+    }
+    const uthanewalabox = document.querySelector(".box2");
+    uthanewalabox.textContent = gain_num();
+    let dragged;
+    uthanewalabox.addEventListener("dragstart", (event) => {
+        dragged = event.target;
+        event.dataTransfer.setData("text/plain", dragged.textContent);
+      });
+      
+      arr_Grid.forEach((box,index) => {
+        box.addEventListener("dragover", (event) => {
+          event.preventDefault();
+          box.style.backgroundColor = "#212131"
+          box.addEventListener("dragleave", (event) => {
+            event.preventDefault();
+            box.style.backgroundColor = ""; 
+          });
+        });
+        
+        box.addEventListener("drop", (event) => {
+          event.preventDefault();
+          if(box.textContent==""){
+            const data = event.dataTransfer.getData("text/plain");
+            box.textContent = data; 
+            box.style.backgroundColor = ""; 
+            uthanewalabox.textContent = gain_num();
+            checkPattern(index);
+          }
+        box.style.backgroundColor = ""; 
+        
+      });
+    });
+    function checkPattern(i) {
+      let do_double = false;
+      if (i != 3 && i != 7 && i != 11) {
+        if (arr_Grid[i + 1]?.textContent === arr_Grid[i].textContent) {
+          arr_Grid[i + 1].textContent = "";
+          count++;
+          do_double_counter++;
+          do_double = true;
+        }
+      }
+      if (arr_Grid[i + 4]?.textContent === arr_Grid[i].textContent) {
+        arr_Grid[i + 4].textContent = "";
+        count++;
+         do_double_counter++;
+        do_double = true;
+      }
+      if (i != 4 && i != 8 && i != 12) {
+        if (arr_Grid[i - 1]?.textContent === arr_Grid[i].textContent) {
+          arr_Grid[i - 1].textContent = "";
+          do_double = true;
+          do_double_counter++;
+          count++;
+        }
+      }
+      if (arr_Grid[i - 4]?.textContent === arr_Grid[i].textContent) {
+        arr_Grid[i - 4].textContent = "";
+        do_double = true;
+        count++;
+        do_double_counter++;
+      }
+      if (do_double) {
+        i_number = parseInt(arr_Grid[i].textContent);
+        arr_Grid[i].textContent = i_number * 2;
+        let score = (i_number * 2)*do_double_counter;
+        newscore += score;
+        scoreDiv.innerText = `TOTAL SCORE - ${newscore}`;
+      }
+      if (
+        arr_Grid[i + 1]?.textContent === arr_Grid[i].textContent ||
+        arr_Grid[i + 4]?.textContent === arr_Grid[i].textContent ||
+        arr_Grid[i - 1]?.textContent === arr_Grid[i].textContent ||
+        arr_Grid[i - 4]?.textContent === arr_Grid[i].textContent
+      ) {
+        checkPattern(i);
+      }if (count >= 3) {
+        help++;
+        helpDiv.innerText = "Option:  " + help;
+      }
+      count = 0;
+      do_double_counter = 0;
+      if (check2048()) {
+        if (i == 3 || i == 7 || i == 11) {
+          arr_Grid[i].textContent = "";
+          arr_Grid[i - 1].textContent = "";
+          arr_Grid[i - 4].textContent = "";
+          arr_Grid[i - 5].textContent = "";
+          arr_Grid[i + 3].textContent = "";
+          arr_Grid[i + 4].textContent = "";
+        } else if (i == 4 || i == 8 || i == 12) {
+          arr_Grid[i].textContent = "";
+          arr_Grid[i - 3].textContent = "";
+          arr_Grid[i - 4].textContent = "";
+          arr_Grid[i + 1].textContent = "";
+          arr_Grid[i + 4].textContent = "";
+          arr_Grid[i + 5].textContent = "";
+        } else {
+          arr_Grid[i].textContent = "";
+          arr_Grid[i - 1].textContent = "";
+          arr_Grid[i - 3].textContent = "";
+          arr_Grid[i - 4].textContent = "";
+          arr_Grid[i - 5].textContent = "";
+          arr_Grid[i + 1].textContent = "";
+          arr_Grid[i + 3].textContent = "";
+          arr_Grid[i + 4].textContent = "";
+          arr_Grid[i + 5].textContent = "";
+        }
+      }
+      if(gameover()){
+        creatGameOverDiv();
+      }
+    }
+    
+      function creatGameOverDiv() {
+        let GameOverDiv = document.createElement('div');
+        GameOverDiv.classList.add('GameOverDiv')
+        let gameOverText = document.createElement('p');
+        gameOverText.textContent = "Game Over";
+        gameOverText.classList.add('p')
+        GameOverDiv.appendChild(gameOverText);
+        let restartButton = document.createElement('button');
+        restartButton.innerText = "Restart";
+        
+        restartButton.classList.add('restartButton')
+        restartButton.addEventListener('click', function() {
+        arr_Grid.forEach(box => {
+            box.textContent = ""; 
+            help=0;
+            newscore = 0;
+            scoreDiv.innerText = `TOTAL SCORE - ${newscore}`;
+            helpDiv.innerText = `Option ${help}`;
+            
+          });
+          GameOverDiv.style.display = "none";
+        });
+        
+      GameOverDiv.appendChild(restartButton);
+      document.body.appendChild(GameOverDiv);
+      return GameOverDiv;
+    } 
+    function gameover() {
+      for (let box of arr_Grid) {
+        if (box.textContent === "") {
+          return false;
+        }
+      }
+      return true;
+    }
+    
+    
+    function check2048() {
+  for (let box of arr_Grid) {
+    if (box.textContent === "2048") {
+      return true;
+    }
+  }
+  return false;
+}
+        
+    </script>
+
+</html>   
